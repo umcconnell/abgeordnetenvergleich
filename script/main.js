@@ -7,6 +7,7 @@ import {
   fetchPoliticiansByDistrict,
   fetchVotesByMandate,
 } from "./api.js";
+import { Dropdown } from "./dropdown.js";
 
 let myConstituency = undefined;
 let constituencies = undefined;
@@ -19,62 +20,30 @@ const suggestionsList = document.getElementById("suggestionsList");
 const searchBtn = document.getElementById("searchButton");
 const backBtn = document.getElementById("backButton");
 
+const mpsList = document.getElementById("mpsList");
 const votesTable = document.getElementById("votesTable");
 const tableHead = votesTable.querySelector("thead");
 const tableBody = votesTable.querySelector("tbody");
 const loader = document.getElementById("loader");
 
-function debounce(func, wait, immediate) {
-  let timeout;
-  return function () {
-    const context = this;
-    const args = arguments;
-    const later = function () {
-      timeout = null;
-      if (!immediate) func.apply(context, args);
-    };
-    const callNow = immediate && !timeout;
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-    if (callNow) func.apply(context, args);
-  };
-}
-
-function runSearch() {
-  const query = searchInput.value.toLowerCase();
-  suggestionsList.innerHTML = "";
-
-  if (query.length <= 2) return;
-  else if (!constituencies) return;
-
-  const filtered = constituencies
-    .map((c) => [c.matchScore(query), c])
+const search = new Dropdown(searchInput, suggestionsList, (qry) => {
+  if (!constituencies) return undefined;
+  return constituencies
+    .map((c) => [c.matchScore(qry), c])
     .sort((a, b) => a[0] - b[0])
-    .map((a) => a[1])
-    .slice(0, 10);
-
-  filtered.forEach((c) => {
-    const li = document.createElement("li");
-    li.textContent = `${c.name} (${c.number})`;
-    li.addEventListener("click", () => {
-      myConstituency = c;
-      searchInput.value = c.name;
-      suggestionsList.innerHTML = "";
-    });
-    suggestionsList.appendChild(li);
-  });
-}
+    .filter((a) => a[0] < 0.6)
+    .map((a) => a[1]);
+});
 
 function setup() {
-  const debouncedSearch = debounce(runSearch, 100, false);
-  searchInput.addEventListener("input", debouncedSearch);
-  searchInput.addEventListener("focus", debouncedSearch);
-
   searchBtn.addEventListener("click", () => {
+    myConstituency = search.selectedItem;
     if (!myConstituency) {
-      searchInput.focus();
+      search.focus();
       return;
     }
+    myConstituency = search.selectedItem;
+
     step1.setAttribute("hidden", "");
     step2.removeAttribute("hidden");
     document.getElementById("constituencyName").textContent =
@@ -88,8 +57,9 @@ function setup() {
     step2.setAttribute("hidden", "");
     tableHead.innerHTML = "";
     tableBody.innerHTML = "";
-    searchInput.value = myConstituency.name;
+    search.reset();
     step1.removeAttribute("hidden");
+    search.focus();
   });
 }
 
@@ -110,6 +80,15 @@ async function displayVotingRecords() {
       return a.name.localeCompare(b.name);
     })
     .map((p) => p.mandateId);
+
+  for (const mandateId of sortedMandateIds) {
+    let politician = politicians.get(mandateId);
+    let li = document.createElement("li");
+    li.innerHTML = `<a href="${politician.url}" target="_blank" rel="noopener noreferrer">${
+      politician.name
+    }</a> (${politician.fraction}) [${politician.mandate_won == "list" ? "Liste" : "Direktmandat"}]`;
+    mpsList.appendChild(li);
+  }
 
   tableHead.innerHTML = `
         <tr>

@@ -5,6 +5,8 @@ export class Politician {
     this.mandateId = mandate.id;
     this.name = mandate.politician.label;
     this.fraction = mandate.fraction_membership[0].label;
+    this.url = mandate.politician.abgeordnetenwatch_url;
+    this.mandate_won = mandate.electoral_data.mandate_won;
   }
 }
 
@@ -29,6 +31,10 @@ export class Constituency {
     this.id = constituency.id;
     this.name = constituency.name;
     this.number = constituency.number;
+  }
+
+  repr() {
+    return `${this.name} (${this.number})`;
   }
 
   matchScore(needle) {
