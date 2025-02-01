@@ -27,7 +27,7 @@ body {
 header,
 main,
 footer {
-    padding: 0 1rem;
+    padding: 0 2.5rem;
 }
 
 header {
@@ -39,8 +39,9 @@ main {
 }
 
 footer {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
     margin-top: auto;
-    padding: 1rem;
     color: white;
     background-color: var(--main-color);
 }
@@ -111,9 +112,10 @@ input {
 }
 
 .table-wrapper {
-    overflow-x: auto;
+    overflow: auto;
     margin: 1rem 0;
     max-width: 100%;
+    max-height: 100vh;
 }
 
 table {
@@ -126,10 +128,13 @@ td {
     border: 1px solid #ddd;
     padding: 8px;
 }
-thead {
+
+thead th {
     background-color: var(--main-color);
-    border-color: var(--main-color);
     color: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 td:first-child,
@@ -249,5 +254,14 @@ tr:nth-child(even) {
     }
     100% {
         transform: scaleY(-1) rotate(-135deg);
+    }
+}
+
+/* Media Queries */
+@media (max-width: 800px) {
+    header,
+    main,
+    footer {
+        padding: 0 1rem;
     }
 }
