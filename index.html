@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Abgeordnetenvergleich</title>
+        <link rel="stylesheet" href="style/style.css" />
+    </head>
+    <body>
+        <header>
+            <h1>Abgeordnetenvergleich (Legislatur 2021-2025)</h1>
+            <p>
+                Vergleiche das Abstimmungsverhalten im Bundestag der
+                Abgeordneten aus deinem Wahlkreis. Daten von
+                <a
+                    href="https://www.abgeordnetenwatch.de"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >abgeordnetenwatch.de</a
+                >.
+            </p>
+        </header>
+
+        <main>
+            <div id="step1">
+                <h2>1. Suche Deinen Wahlkreis</h2>
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Wahlkreissuche"
+                    autofocus
+                    autocomplete="off"
+                />
+                <ul id="suggestionsList"></ul>
+                <button id="searchButton">Weiter &RightArrow;</button>
+            </div>
+
+            <div id="step2" hidden>
+                <h2>2. Abstimmungsverhalten</h2>
+
+                <b>Wahlkreis:</b> <span id="constituencyName"></span> (<span
+                    id="constituencyNumber"
+                ></span
+                >) <br />
+                <b>Legende:</b>
+                <ul id="symbol-legend">
+                    <li>✅: Ja</li>
+                    <li>❌: Nein</li>
+                    <li>🤷: Enthaltung</li>
+                    <li>➖: Abwesend</li>
+                </ul>
+
+                <div class="loader" id="loader" hidden></div>
+                <div class="table-wrapper">
+                    <table id="votesTable" hidden>
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <button id="backButton">&LeftArrow; Zurück</button>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <h3>Abgeordnetenvergleich</h3>
+            <p>
+                &lt;/&gt; with ♥ by Ulysse McConnell<br />
+                <a
+                    href="https://umcconnell.net/"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    >umcconnell.net</a
+                >
+                &nbsp;|&nbsp;
+                <a
+                    href="https://github.com/umcconnell"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    ><img src="icons/github-mark-white.svg" alt="GitHub" /></a
+                >&nbsp;<a
+                    href="https://bsky.app/profile/umcconnell.net"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    ><img src="icons/bluesky.svg" alt="BlueSky"
+                /></a>
+            </p>
+        </footer>
+
+        <script type="module" src="script/main.js"></script>
+    </body>
+</html>
