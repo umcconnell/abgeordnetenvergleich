@@ -4,22 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <title>Abgeordnetenvergleich</title>
-        <!-- <style>
-            /* Avoid FOUC */
-            @media (prefers-color-scheme: dark) {
-                body {
-                    background-color: #121212;
-                    color: #e0e0e0;
-                }
-            }
-        </style> -->
         <link rel="stylesheet" href="style/style.css" />
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css"
-            integrity="sha256-q9ba7o845pMPFU+zcAll8rv+gC+fSovKsOoNQ6cynuQ="
-            crossorigin="anonymous"
-        />
         <script>
             /* prevent Firefox FOUC */
             let FF_FOUC_FIX;
@@ -41,28 +26,32 @@
         </header>
 
         <main>
-            <h2>1. Suche Deinen Wahlkreis</h2>
-            <form action="constituency.html" method="GET" id="searchForm">
-                <input
-                    type="text"
-                    name="constituency"
-                    id="searchInput"
-                    class="input"
-                    placeholder="Wahlkreissuche"
-                    autofocus
-                    autocomplete="off"
-                />
-                <ul id="suggestionsList"></ul>
+            <h2>2. Abstimmungsverhalten</h2>
 
-                <div id="map"></div>
-                <button
-                    type="submit"
-                    id="searchButton"
-                    class="btn margin-top-1rem"
-                >
-                    Weiter &RightArrow;
-                </button>
-            </form>
+            <b>Wahlkreis:</b> <span id="constituencyName"></span> (<span
+                id="constituencyNumber"
+            ></span
+            >)<br />
+            <b>Abgeordnete:</b>
+            <ul id="mpsList"></ul>
+
+            <b>Legende:</b>
+            <ul id="symbol-legend">
+                <li>✅: Ja</li>
+                <li>❌: Nein</li>
+                <li>🤷: Enthaltung</li>
+                <li>➖: Abwesend</li>
+            </ul>
+
+            <div class="loader" id="loader"></div>
+            <div class="table-wrapper">
+                <table id="votesTable" hidden>
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <a href="index.html" class="btn">&LeftArrow; Zurück</a>
         </main>
 
         <footer class="footer">
@@ -90,6 +79,6 @@
             </p>
         </footer>
 
-        <script type="module" src="script/main.js"></script>
+        <script type="module" src="script/constituency.js"></script>
     </body>
 </html>

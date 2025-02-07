@@ -1,5 +1,14 @@
 :root {
     --main-color: #728ed6;
+    --main-color-light: #a3b8f0;
+
+    --bg-color: white;
+    --bg-color-darker: #f5f5f5;
+    --text-color: black;
+}
+
+* {
+    box-sizing: border-box;
 }
 
 html {
@@ -21,6 +30,8 @@ body {
 }
 
 body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
     font-size: 1rem;
 }
 
@@ -55,7 +66,7 @@ a img {
     vertical-align: middle;
 }
 
-button {
+.btn {
     font-size: 1rem;
     padding: 0.5rem 1rem;
     border: none;
@@ -63,10 +74,15 @@ button {
     border-radius: 5px;
     margin: 0.5rem 0;
     background-color: var(--main-color);
-    color: white;
+    color: white !important;
+    text-decoration: none;
+    display: inline-block;
 }
 
-input {
+.input {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+
     font-size: 1rem;
     padding: 0.75rem 1rem;
     border: 1px solid #ccc;
@@ -74,11 +90,26 @@ input {
     box-sizing: border-box;
 }
 
+.margin-top-1rem {
+    margin-top: 1rem;
+}
+
+#searchForm {
+    position: relative;
+}
+
 #searchInput {
-    margin-bottom: 0;
+    margin-bottom: 1rem;
     width: 100%;
     border: 2px solid var(--main-color);
     outline: none;
+}
+
+#map {
+    height: 600px;
+}
+.leaflet-popup-content {
+    font-size: 14px;
 }
 
 ul {
@@ -87,23 +118,30 @@ ul {
 }
 
 #suggestionsList {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+
     list-style-type: none;
     padding: 0;
-    margin-top: 0;
-    border: 1px solid #ccc;
+    margin-top: -1rem;
+    /*border: 1px solid #ccc;*/
     border-top: 0;
     max-height: 23rem;
     overflow-y: auto;
+
+    position: absolute;
+    z-index: 10000;
+    width: 100%;
 }
 #suggestionsList li {
     cursor: pointer;
     padding: 0.5rem 1rem;
+    border: 1px solid #eee;
+    border-top: 0;
 }
-#suggestionsList li:not(:last-child) {
-    border-bottom: 1px solid #eee;
-}
+
 #suggestionsList li:hover {
-    background-color: #eee;
+    background-color: var(--main-color-light);
 }
 #suggestionsList li.active {
     background-color: var(--main-color);
@@ -159,7 +197,7 @@ th:not(:first-child) {
 }
 
 tr:nth-child(even) {
-    background-color: #f5f5f5;
+    background-color: var(--bg-color-darker);
 }
 
 /* Loader */
@@ -170,10 +208,9 @@ tr:nth-child(even) {
     aspect-ratio: 1;
     border-radius: 50%;
     border: 8px solid var(--main-color);
-    animation:
-        l20-1 0.8s infinite linear alternate,
-        l20-2 1.6s infinite linear;
+    animation: l20-1 0.8s infinite linear alternate, l20-2 1.6s infinite linear;
 }
+
 @keyframes l20-1 {
     0% {
         clip-path: polygon(
@@ -274,5 +311,24 @@ tr:nth-child(even) {
     main,
     footer {
         padding: 0 1rem;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-color: #121212;
+        --bg-color-darker: #1f1f1f;
+        --text-color: #e0e0e0;
+    }
+
+    .leaflet-layer,
+    .leaflet-control-zoom-in,
+    .leaflet-control-zoom-out {
+        filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+    }
+
+    header a,
+    main a {
+        color: var(--main-color) !important;
     }
 }
