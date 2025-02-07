@@ -17,10 +17,20 @@ const votesTable = document.getElementById("votesTable");
 const tableHead = votesTable.querySelector("thead");
 const tableBody = votesTable.querySelector("tbody");
 const loader = document.getElementById("loader");
+const errorField = document.getElementById("errorField");
+const info = document.getElementById("info");
 
 function displayConstituency() {
     constituencyName.textContent = myConstituency.name;
     constituencyNumber.textContent = myConstituency.number;
+}
+
+function displayError(e) {
+    errorField.textContent = e.message;
+    errorField.removeAttribute("hidden");
+    loader.setAttribute("hidden", true);
+    votesTable.setAttribute("hidden", true);
+    info.setAttribute("hidden", true);
 }
 
 async function displayVotingRecords() {
@@ -30,7 +40,13 @@ async function displayVotingRecords() {
     tableHead.innerHTML = "";
     tableBody.innerHTML = "";
 
-    const mandates = await fetchPoliticiansByDistrict(myConstituency.id);
+    let mandates;
+    try {
+        mandates = await fetchPoliticiansByDistrict(myConstituency.id);
+    } catch (e) {
+        displayError(e);
+        return;
+    }
     const politicians = new Map(mandates.map((p) => [p.mandateId, p]));
 
     const sortedMandateIds = politicians
@@ -66,21 +82,14 @@ async function displayVotingRecords() {
     `;
 
     const allVotes = new Map();
+    let votes;
+    try {
+        votes = await fetchAllVotes(mandates.map((m) => m.mandateId));
+    } catch (e) {
+        displayError(e);
+        return;
+    }
 
-    /* for (const mandate of mandates) {
-        const votes = await fetchVotesByMandate(mandate.mandateId);
-        for (const vote of votes) {
-            const pollId = vote.poll.id;
-            if (!allVotes.has(pollId)) {
-                let poll = new Poll(vote);
-                allVotes.set(pollId, poll);
-            }
-
-            let voteObj = new Vote(vote);
-            allVotes.get(pollId).votes.push(voteObj);
-        }
-    } */
-    const votes = await fetchAllVotes(mandates.map((m) => m.mandateId));
     for (const vote of votes) {
         const pollId = vote.poll.id;
         if (!allVotes.has(pollId)) {
@@ -126,15 +135,23 @@ async function loadConstituency() {
     const urlParams = new URLSearchParams(window.location.search);
     const constituencyId = urlParams.get("constituency");
     if (constituencyId) {
-        myConstituency = await getConstituencyById(constituencyId);
+        try {
+            myConstituency = await getConstituencyById(constituencyId);
+        } catch (e) {
+            displayError(e);
+            return;
+        }
+
         if (myConstituency) {
             displayConstituency();
             await displayVotingRecords();
         } else {
-            console.error("Constituency not found");
+            displayError(new Error("No constituency found"));
+            return;
         }
     } else {
-        console.error("No constituency parameter in URL");
+        displayError(new Error("No constituency parameter in URL"));
+        return;
     }
 }
 

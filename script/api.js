@@ -79,10 +79,24 @@ export class Constituency {
     }
 }
 
+async function checkResponse(response) {
+    if (!response.ok || (response.status >= 400 && response.status < 600)) {
+        const data = await response.json();
+
+        if (data && data.meta && data.meta.status_message) {
+            throw new Error(data.meta.status_message);
+        } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    }
+}
+
 export async function fetchConstituencies() {
     const response = await fetch(
         `${apiBaseUrl}/constituencies?parliament_period=132&range_end=1000`
     );
+    await checkResponse(response);
+
     const data = await response.json();
     return data.data.map((c) => new Constituency(c));
 }
@@ -91,6 +105,8 @@ export async function fetchPoliticiansByDistrict(districtId) {
     const response = await fetch(
         `${apiBaseUrl}/candidacies-mandates?parliament_period=132&type=mandate&electoral_data[entity.constituency]=${districtId}`
     );
+    await checkResponse(response);
+
     const data = await response.json();
     return data.data.map((p) => new Politician(p));
 }
@@ -111,8 +127,10 @@ export async function fetchAllVotes(mandateIds) {
     const response = await fetch(
         `${apiBaseUrl}/votes?mandate[in]=[${mandateIds.join(
             ","
-        )}]&pager_limit=1000`
+        )}]&range_end=1000`
     );
+    await checkResponse(response);
+
     let data = await response.json();
     range_start = data.meta.range_end + 1;
     let votes = data.data;
@@ -123,8 +141,10 @@ export async function fetchAllVotes(mandateIds) {
         const response_extended = await fetch(
             `${apiBaseUrl}/votes?mandate[in]=[${mandateIds.join(
                 ","
-            )}]&pager_limit=1000&range_start=${range_start}`
+            )}]&range_start=${range_start}&range_end=${range_start + 1000}`
         );
+        await checkResponse(response_extended);
+
         data = await response_extended.json();
         votes = votes.concat(data.data);
         range_start = data.meta.range_end + 1;
@@ -135,6 +155,8 @@ export async function fetchAllVotes(mandateIds) {
 
 export async function getConstituencyById(id) {
     const response = await fetch(`${apiBaseUrl}/constituencies/${id}`);
+    await checkResponse(response);
+
     const data = await response.json();
     return new Constituency(data.data);
 }

@@ -7,7 +7,7 @@ const searchForm = document.getElementById("searchForm");
 const searchInput = document.getElementById("searchInput");
 const suggestionsList = document.getElementById("suggestionsList");
 const mapElement = document.getElementById("map");
-const searchBtn = document.getElementById("searchButton");
+const searchError = document.getElementById("searchError");
 
 const searchFn = (qry) => {
     if (!constituencies) return undefined;
@@ -37,7 +37,7 @@ const getItemById = (num) => {
 };
 
 const search = new Dropdown(
-    { searchInput, suggestionsList, mapElement },
+    { searchInput, suggestionsList, mapElement, errorField: searchError },
     { searchFn, getItemById }
 );
 
@@ -46,7 +46,15 @@ searchForm.addEventListener("submit", (event) => {
     const myConstituency = search.selectedItem;
 
     // TODO: Validation
-    if (!myConstituency) {
+    if (
+        searchInput.value === "" ||
+        (!myConstituency && searchInput.value === "")
+    ) {
+        search.setErrMsg("Bitte geben Sie einen Wahlkreis ein.");
+        search.focus();
+        return;
+    } else if (!myConstituency || myConstituency.name !== searchInput.value) {
+        search.setErrMsg("Bitte wählen Sie einen Wahlkreis aus der Liste.");
         search.focus();
         return;
     }

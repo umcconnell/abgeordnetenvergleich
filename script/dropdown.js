@@ -10,7 +10,7 @@ const tileLayer = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 // TODO: Only allow selection of single constituency
 export class Dropdown {
     constructor(
-        { searchInput, suggestionsList, mapElement },
+        { searchInput, suggestionsList, mapElement, errorField },
         {
             searchFn,
             getItemById,
@@ -18,9 +18,14 @@ export class Dropdown {
         },
         styling = { fillColor: "#728ed6", color: "white", fillOpacity: 0.7 }
     ) {
-        this.searchInput = searchInput;
-        this.suggestionsList = suggestionsList;
-        this.mapElement = mapElement;
+        this.els = {
+            searchInput,
+            suggestionsList,
+            mapElement,
+            errorField,
+        };
+        errorField.setAttribute("hidden", true);
+
         this.styling = styling;
 
         this.geoJSONPath = geoJSONPath;
@@ -43,23 +48,26 @@ export class Dropdown {
     }
 
     setupListeners() {
-        this.searchInput.addEventListener(
+        this.els.searchInput.addEventListener(
             "input",
             debounce(this.runSearch.bind(this), 100, false)
         );
-        this.searchInput.addEventListener(
+        this.els.searchInput.addEventListener(
             "keydown",
             this.handleKeydown.bind(this)
         );
-        this.searchInput.addEventListener("focus", this.runSearch.bind(this));
+        this.els.searchInput.addEventListener(
+            "focus",
+            this.runSearch.bind(this)
+        );
 
         // Close suggestions list when clicking outside
         document.addEventListener("click", (event) => {
             if (
-                !this.searchInput.contains(event.target) &&
-                !this.suggestionsList.contains(event.target)
+                !this.els.searchInput.contains(event.target) &&
+                !this.els.suggestionsList.contains(event.target)
             ) {
-                this.suggestionsList.innerHTML = "";
+                this.els.suggestionsList.innerHTML = "";
                 this.activeIdx = -1;
             }
         });
@@ -69,7 +77,7 @@ export class Dropdown {
         const { fillColor, fillOpacity, color } = this.styling;
 
         // Create map
-        this.map = L.map(this.mapElement).setView([51.4, 9.7], 6); // Germany
+        this.map = L.map(this.els.mapElement).setView([51.4, 9.7], 6); // Germany
 
         // Add OpenStreetMap tile layer
         L.tileLayer(tileLayer, {
@@ -138,8 +146,12 @@ export class Dropdown {
             this._selectedItem = c;
         }
 
-        this.searchInput.value = this._selectedItem.name;
-        this.suggestionsList.innerHTML = "";
+        this.els.searchInput.value = this._selectedItem.name;
+        this.els.suggestionsList.innerHTML = "";
+
+        this.els.errorField.setAttribute("hidden", true);
+        this.els.errorField.textContent = "";
+
         // this.activeIdx = -1;
         // this.activeItems = [];
 
@@ -158,9 +170,9 @@ export class Dropdown {
     }
 
     runSearch(event) {
-        const query = this.searchInput.value.toLowerCase();
+        const query = this.els.searchInput.value.toLowerCase();
         this.activeIdx = -1;
-        this.suggestionsList.innerHTML = "";
+        this.els.suggestionsList.innerHTML = "";
 
         let searchResult = this.searchFn(query);
         if (!searchResult) return;
@@ -172,7 +184,7 @@ export class Dropdown {
     }
 
     renderSuggestions() {
-        this.suggestionsList.innerHTML = "";
+        this.els.suggestionsList.innerHTML = "";
         this.activeItems.entries().forEach(([idx, c]) => {
             const li = document.createElement("li");
             li.setAttribute("role", "option");
@@ -183,7 +195,7 @@ export class Dropdown {
                 this.activeIdx = idx;
                 this.selectItem();
             });
-            this.suggestionsList.appendChild(li);
+            this.els.suggestionsList.appendChild(li);
         });
     }
 
@@ -201,12 +213,12 @@ export class Dropdown {
             event.preventDefault();
             this.selectItem();
         } else if (event.key === "Escape") {
-            this.suggestionsList.innerHTML = "";
+            this.els.suggestionsList.innerHTML = "";
             this.activeIdx = -1;
         }
 
         if (this.activeIdx >= 0) {
-            this.suggestionsList
+            this.els.suggestionsList
                 .querySelectorAll("li")
                 .forEach((item, index) => {
                     if (index === this.activeIdx) {
@@ -220,17 +232,22 @@ export class Dropdown {
     }
 
     focus() {
-        this.searchInput.focus();
+        this.els.searchInput.focus();
         this.runSearch();
     }
 
+    setErrMsg(msg) {
+        this.els.errorField.textContent = msg;
+        this.els.errorField.removeAttribute("hidden");
+    }
+
     reset() {
-        this.searchInput.value = this._selectedItem
+        this.els.searchInput.value = this._selectedItem
             ? this._selectedItem.name
             : "";
-        this.suggestionsList.innerHTML = "";
+        this.els.suggestionsList.innerHTML = "";
         this.activeIdx = -1;
         this.activeItems = [];
-        this.searchInput.focus();
+        this.els.searchInput.focus();
     }
 }
