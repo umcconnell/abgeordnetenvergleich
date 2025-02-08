@@ -60,11 +60,23 @@ async function displayVotingRecords() {
     for (const mandateId of sortedMandateIds) {
         let politician = politicians.get(mandateId);
         let li = document.createElement("li");
-        li.innerHTML = `<a href="${
-            politician.url
-        }" target="_blank" rel="noopener noreferrer">${politician.name}</a> (${
-            politician.fraction
-        }) [${politician.mandate_won == "list" ? "Liste" : "Direktmandat"}]`;
+
+        let mandateType;
+        switch (politician.mandate_won) {
+            case "list":
+                mandateType = "Liste";
+                break;
+            case "constituency":
+                mandateType = "Direktmandat";
+                break;
+            case "moved_up":
+                mandateType = "Nachgerückt";
+                break;
+            default:
+                mandateType = "Unbekannt";
+        }
+
+        li.innerHTML = `<a href="${politician.url}" target="_blank" rel="noopener noreferrer">${politician.name}</a> (${politician.fraction}) [${mandateType}]`;
         mpsList.appendChild(li);
     }
 
