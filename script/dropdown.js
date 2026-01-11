@@ -1,4 +1,3 @@
-import leaflet from "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm";
 import { debounce } from "./util.js";
 
 const tileLayer = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
