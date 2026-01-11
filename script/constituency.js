@@ -34,6 +34,13 @@ function displayError(e) {
 }
 
 async function displayVotingRecords() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const periodId = urlParams.get("period") || 161; // Default to 21st Bundestag
+    const periodLabel = periodId == 132 ? "2021-2025" : "2025-2029";
+    document.querySelector(
+        "h1"
+    ).textContent = `Abgeordnetenvergleich (Legislatur ${periodLabel})`;
+
     loader.removeAttribute("hidden");
     votesTable.setAttribute("hidden", "");
 
@@ -42,7 +49,7 @@ async function displayVotingRecords() {
 
     let mandates;
     try {
-        mandates = await fetchPoliticiansByDistrict(myConstituency.id);
+        mandates = await fetchPoliticiansByDistrict(myConstituency.id, periodId);
     } catch (e) {
         displayError(e);
         return;

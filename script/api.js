@@ -91,9 +91,9 @@ async function checkResponse(response) {
     }
 }
 
-export async function fetchConstituencies() {
+export async function fetchConstituencies(parliamentPeriodId = 132) {
     const response = await fetch(
-        `${apiBaseUrl}/constituencies?parliament_period=132&range_end=1000`
+        `${apiBaseUrl}/constituencies?parliament_period=${parliamentPeriodId}&range_end=1000`
     );
     await checkResponse(response);
 
@@ -101,9 +101,12 @@ export async function fetchConstituencies() {
     return data.data.map((c) => new Constituency(c));
 }
 
-export async function fetchPoliticiansByDistrict(districtId) {
+export async function fetchPoliticiansByDistrict(
+    districtId,
+    parliamentPeriodId = 132
+) {
     const response = await fetch(
-        `${apiBaseUrl}/candidacies-mandates?parliament_period=132&type=mandate&electoral_data[entity.constituency]=${districtId}`
+        `${apiBaseUrl}/candidacies-mandates?parliament_period=${parliamentPeriodId}&type=mandate&electoral_data[entity.constituency]=${districtId}`
     );
     await checkResponse(response);
 

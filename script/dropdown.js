@@ -74,8 +74,6 @@ export class Dropdown {
     }
 
     async initMap() {
-        const { fillColor, fillOpacity, color } = this.styling;
-
         // Create map
         this.map = L.map(this.els.mapElement).setView([51.4, 9.7], 6); // Germany
 
@@ -84,8 +82,18 @@ export class Dropdown {
             attribution: "&copy; OpenStreetMap contributors",
         }).addTo(this.map);
 
+        await this.loadGeoJSON(this.geoJSONPath);
+    }
+
+    async loadGeoJSON(path) {
+        if (this.geojsonLayer) {
+            this.map.removeLayer(this.geojsonLayer);
+        }
+
+        const { fillColor, fillOpacity, color } = this.styling;
+
         // Sample GeoJSON data
-        const geoJSONDataRaw = await fetch(this.geoJSONPath);
+        const geoJSONDataRaw = await fetch(path);
         this.geoJSONData = await geoJSONDataRaw.json();
 
         // Define style for features

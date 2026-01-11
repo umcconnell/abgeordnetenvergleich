@@ -106,11 +106,16 @@ a img {
     margin-top: 1rem;
 }
 
+.margin-bottom-1rem {
+    margin-bottom: 1rem;
+}
+
 #searchForm {
     position: relative;
 }
 
-#searchInput {
+#searchInput,
+#periodSelect {
     margin-bottom: 1rem;
     width: 100%;
     border: 2px solid var(--main-color);
