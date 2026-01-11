@@ -8,6 +8,20 @@ const searchInput = document.getElementById("searchInput");
 const suggestionsList = document.getElementById("suggestionsList");
 const mapElement = document.getElementById("map");
 const searchError = document.getElementById("searchError");
+const periodSelect = document.getElementById("periodSelect");
+
+const periods = {
+    132: {
+        id: 132,
+        label: "2021-2025",
+        geoJSON: "./assets/Geometrie_Wahlkreise_20DBT_geo.geojson",
+    },
+    161: {
+        id: 161,
+        label: "2025-2029",
+        geoJSON: "./assets/Geometrie_Wahlkreise_21DBT_geo.geojson",
+    },
+};
 
 const searchFn = (qry) => {
     if (!constituencies) return undefined;
@@ -38,7 +52,11 @@ const getItemById = (num) => {
 
 const search = new Dropdown(
     { searchInput, suggestionsList, mapElement, errorField: searchError },
-    { searchFn, getItemById }
+    {
+        searchFn,
+        getItemById,
+        geoJSONPath: periods[161].geoJSON, // Default to 21st Bundestag
+    }
 );
 
 searchForm.addEventListener("submit", (event) => {
@@ -59,9 +77,28 @@ searchForm.addEventListener("submit", (event) => {
         return;
     }
 
-    window.location.href = `constituency.html?constituency=${myConstituency.id}`;
+    window.location.href = `constituency.html?constituency=${myConstituency.id}&period=${periodSelect.value}`;
 });
 
+async function updatePeriod() {
+    const periodId = parseInt(periodSelect.value);
+    const period = periods[periodId];
+
+    // Update title
+    document.querySelector(
+        "h1"
+    ).textContent = `Abgeordnetenvergleich (Legislatur ${period.label})`;
+
+    // Fetch constituencies for new period
+    constituencies = await fetchConstituencies(periodId);
+
+    // Update map
+    await search.loadGeoJSON(period.geoJSON);
+    search.reset();
+}
+
+periodSelect.addEventListener("change", updatePeriod);
+
 (async () => {
-    constituencies = await fetchConstituencies();
+    constituencies = await fetchConstituencies(161);
 })();
