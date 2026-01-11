@@ -33,7 +33,7 @@ function displayError(e) {
     info.setAttribute("hidden", true);
 }
 
-async function displayVotingRecords() {
+async function displayVotingRecords(periodId) {
     loader.removeAttribute("hidden");
     votesTable.setAttribute("hidden", "");
 
@@ -42,7 +42,7 @@ async function displayVotingRecords() {
 
     let mandates;
     try {
-        mandates = await fetchPoliticiansByDistrict(myConstituency.id);
+        mandates = await fetchPoliticiansByDistrict(myConstituency.id, periodId);
     } catch (e) {
         displayError(e);
         return;
@@ -146,6 +146,17 @@ async function displayVotingRecords() {
 async function loadConstituency() {
     const urlParams = new URLSearchParams(window.location.search);
     const constituencyId = urlParams.get("constituency");
+    const periodId = urlParams.get("period") || 161; // Default to 21. Bundestag if missing
+
+    const pageTitle = document.getElementById("pageTitle");
+    if (pageTitle) {
+        if (periodId == 132) {
+            pageTitle.textContent = "Abgeordnetenvergleich (20. Bundestag)";
+        } else {
+            pageTitle.textContent = "Abgeordnetenvergleich (21. Bundestag)";
+        }
+    }
+
     if (constituencyId) {
         try {
             myConstituency = await getConstituencyById(constituencyId);
@@ -156,7 +167,7 @@ async function loadConstituency() {
 
         if (myConstituency) {
             displayConstituency();
-            await displayVotingRecords();
+            await displayVotingRecords(periodId);
         } else {
             displayError(new Error("No constituency found"));
             return;

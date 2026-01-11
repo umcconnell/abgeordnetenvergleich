@@ -2,12 +2,15 @@ import { Constituency, fetchConstituencies } from "./api.js";
 import { Dropdown } from "./dropdown.js";
 
 let constituencies = undefined;
+let currentParliamentPeriod = 161; // Default to 21. Bundestag
 
 const searchForm = document.getElementById("searchForm");
 const searchInput = document.getElementById("searchInput");
 const suggestionsList = document.getElementById("suggestionsList");
 const mapElement = document.getElementById("map");
 const searchError = document.getElementById("searchError");
+const legislatureSelect = document.getElementById("legislatureSelect");
+const mapWarning = document.getElementById("mapWarning");
 
 const searchFn = (qry) => {
     if (!constituencies) return undefined;
@@ -59,9 +62,47 @@ searchForm.addEventListener("submit", (event) => {
         return;
     }
 
-    window.location.href = `constituency.html?constituency=${myConstituency.id}`;
+    window.location.href = `constituency.html?constituency=${myConstituency.id}&period=${currentParliamentPeriod}`;
+});
+
+async function loadData() {
+    searchInput.disabled = true;
+    searchInput.placeholder = "Lade Daten...";
+
+    try {
+        constituencies = await fetchConstituencies(currentParliamentPeriod);
+    } catch (error) {
+        console.error("Failed to load constituencies:", error);
+        search.setErrMsg("Fehler beim Laden der Daten.");
+    } finally {
+        searchInput.disabled = false;
+        searchInput.placeholder = "Wahlkreissuche";
+        searchInput.focus();
+    }
+}
+
+legislatureSelect.addEventListener("change", async (e) => {
+    currentParliamentPeriod = parseInt(e.target.value);
+
+    // Show/Hide warning
+    if (currentParliamentPeriod === 161) {
+        mapWarning.removeAttribute("hidden");
+    } else {
+        mapWarning.setAttribute("hidden", true);
+    }
+
+    // Clear current selection
+    search.reset();
+
+    // Reload data
+    await loadData();
 });
 
 (async () => {
-    constituencies = await fetchConstituencies();
+    // Initial check for warning
+    if (legislatureSelect.value == "161") {
+        mapWarning.removeAttribute("hidden");
+    }
+    currentParliamentPeriod = parseInt(legislatureSelect.value);
+    await loadData();
 })();
